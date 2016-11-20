@@ -1,7 +1,7 @@
 var init = false;
 
 self.addEventListener("message", function (e) {
-    console.log(e.data)
+    console.log(e.data);
     if(!init) {
         setInterval(wheelMe, 10);
         console.log("Init!")

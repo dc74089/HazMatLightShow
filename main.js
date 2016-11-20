@@ -17,26 +17,6 @@ var initCanvas = function () {
     x.fillText("12", c.width * 0.8, c.height * 0.5);
 };
 
-var resizeCanvas = function () {
-    c.width = window.innerWidth;
-    c.height = window.innerHeight;
-};
-
-window.addEventListener("resize", resizeCanvas);
-window.addEventListener("load", function () {
-    initInterval = setInterval(initCanvas, 10);
-});
-c.addEventListener("mousedown", function (e) { //On click grade
-    onClickGrade(e);
-});
-
-worker.onmessage = function (event) {
-    data = event.data;
-    x.fillStyle = data;
-    x.fillRect(0, 0, c.width, c.height);
-    console.log("Message from worker! " + data)
-};
-
 var onClickGrade = function (e) {
     var xProp = e.clientX / c.width;
     if(xProp < 0.1 || xProp > 0.9) return;
@@ -51,6 +31,25 @@ var onClickGrade = function (e) {
     x.fillText(grade, c.width/2, c.height/2);
     isGradeInit = true;
     console.log("Grade is " + grade);
+    c.removeEventListener("mousedown", onClickGrade);
+};
+
+var resizeCanvas = function () {
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
+};
+
+window.addEventListener("load", function () {
+    initInterval = setInterval(initCanvas, 10);
+});
+window.addEventListener("resize", resizeCanvas);
+gradeListener = c.addEventListener("mousedown", onClickGrade);
+
+worker.onmessage = function (event) {
+    data = event.data;
+    x.fillStyle = data;
+    x.fillRect(0, 0, c.width, c.height);
+    console.log("Message from worker! " + data)
 };
 
 var wheelMe = function () {
