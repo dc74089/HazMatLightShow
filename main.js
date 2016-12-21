@@ -32,6 +32,9 @@ var onClickGrade = function (e) {
     isGradeInit = true;
     console.log("Grade is " + grade);
     c.removeEventListener("mousedown", onClickGrade);
+
+    w = new Worker("worker.js");
+    w.postMessage(grade);
 };
 
 var resizeCanvas = function () {

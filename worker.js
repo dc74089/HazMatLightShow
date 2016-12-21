@@ -1,12 +1,48 @@
 var init = false;
+var startTime = false;
+var waitForStartInterval = null;
+
+importScripts("https://www.gstatic.com/firebasejs/3.6.2/firebase.js");
+
+var config = {
+    apiKey: "AIzaSyC5pUq_4btmqOrQmFGeqQNzIjTCJt7B3NY",
+    authDomain: "hazmatlightshow.firebaseapp.com",
+    databaseURL: "https://hazmatlightshow.firebaseio.com",
+    storageBucket: "hazmatlightshow.appspot.com",
+    messagingSenderId: "821370827473"
+};
 
 self.addEventListener("message", function (e) {
     console.log(e.data);
     if(!init) {
-        setInterval(wheelMe, 10);
-        console.log("Init!")
+        firebase.initializeApp(config);
+        var db = firebase.database();
+        db.ref().child("startTime").on("value", function (snap) {
+            updateStartTime(snap.val());
+        });
+        console.log("Init!");
+        init = true;
     }
 });
+
+function updateStartTime(val) {
+    console.log("Start time: " + val);
+    startTime = val;
+    if (typeof val === 'number') {
+        waitForStartInterval = setInterval(waitForStart(), 100);
+    } else if (waitForStartInterval !== null) {
+        console.log("Cancelling Show");
+        clearInterval(waitForStartInterval);
+        waitForStartInterval = null;
+    }
+}
+
+function waitForStart() {
+    console.log("waiting");
+    if (startTime <= (new Date).getTime()) {
+        show();
+    }
+}
 
 function componentToHex(c) {
     var hex = c.toString(16);
@@ -42,4 +78,8 @@ function wheel(pos) {
     }
     pos -= 170;
     return rgbToHex(pos * 3, 255 - pos * 3, 0);
+}
+
+function show() {
+    console.log("Show Start")
 }
