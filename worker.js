@@ -56,23 +56,14 @@ function componentToHex(c) {
 function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
-
 function sendMessage(hex) {
     console.log("Posting message");
     self.postMessage(hex);
+    console.log("Posted Message")
 }
-
 var sendRGB = function (r, g, b) {
     sendMessage(rgbToHex(r, g, b));
 };
-
-var wheelMe = function () {
-    var time = (new Date).getTime();
-    time /= 100;
-    time = Math.round(time);
-    sendMessage(wheel(time % 255));
-};
-
 function wheel(pos) {
     pos = 255 - pos;
     if(pos < 85) {
@@ -85,8 +76,21 @@ function wheel(pos) {
     pos -= 170;
     return rgbToHex(pos * 3, 255 - pos * 3, 0);
 }
+function z() { //get show time
+    return (new Date()).getTime() - startTime;
+}
+function w(millis) {
+    while (z() < millis) {
+
+    }
+}
+function s(r, g, b) {
+    sendRGB(r, g, b);
+}
 
 function show() {
     console.log("Show Start");
-    sendRGB(50, 50, 50);
+    s(50, 50, 50);
+    w(4000);
+    s(255, 175, 0);
 }
