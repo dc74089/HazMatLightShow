@@ -1,4 +1,5 @@
 var init = false;
+var grade;
 var startTime = false;
 var waitForStartInterval = null;
 
@@ -13,14 +14,15 @@ var config = {
 };
 
 self.addEventListener("message", function (e) {
-    console.log(e.data);
+    grade = e.data;
+    console.log("Worker initialized with grade " + grade);
     if(!init) {
         firebase.initializeApp(config);
         var db = firebase.database();
         db.ref().child("startTime").on("value", function (snap) {
             updateStartTime(snap.val());
         });
-        console.log("Init!");
+        //console.log("Init!");
         init = true;
     }
 });
@@ -29,17 +31,20 @@ function updateStartTime(val) {
     console.log("Start time: " + val);
     startTime = val;
     if (typeof val === 'number') {
-        waitForStartInterval = setInterval(waitForStart(), 100);
-    } else if (waitForStartInterval !== null) {
-        console.log("Cancelling Show");
-        clearInterval(waitForStartInterval);
-        waitForStartInterval = null;
+        waitForStartInterval = setInterval(waitForStart, 10);
+    } else {
+        if (waitForStartInterval !== null) {
+            console.log("Cancelling Show");
+            clearInterval(waitForStartInterval);
+            waitForStartInterval = null;
+        }
     }
 }
 
 function waitForStart() {
-    console.log("waiting");
     if (startTime <= (new Date).getTime()) {
+        clearInterval(waitForStartInterval);
+        waitForStartInterval = null;
         show();
     }
 }
@@ -52,9 +57,10 @@ function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
 
-var sendMessage = function (hex) {
+function sendMessage(hex) {
+    console.log("Posting message");
     self.postMessage(hex);
-};
+}
 
 var sendRGB = function (r, g, b) {
     sendMessage(rgbToHex(r, g, b));
@@ -81,5 +87,6 @@ function wheel(pos) {
 }
 
 function show() {
-    console.log("Show Start")
+    console.log("Show Start");
+    sendRGB(50, 50, 50);
 }

@@ -10,7 +10,14 @@ firebase.initializeApp(config);
 var db = firebase.database();
 var auth = firebase.auth();
 var loggedIn = false;
+var a, t, countdownDiv;
+var waitForStartInterval = null;
 console.log("Firebase Initialized");
+
+addEventListener("load", function () {
+    a = document.getElementById("audio");
+    countdownDiv = document.getElementById("countdown");
+});
 
 var login = function () {
     var succeededLogin = true;
@@ -30,12 +37,29 @@ var login = function () {
 
 var startShow = function () {
     console.log("Starting Show...");
-    var t = (new Date()).getTime();
-    t += 10000;
+    t = (new Date()).getTime();
+    t += 3000;
 
     db.ref().child("startTime").set(t);
+
+    waitForStartInterval = setInterval(update, 10);
+};
+
+var update = function () {
+    countdownDiv.innerHTML = "<h1>" + (t - (new Date()).getTime()) + "</h1>";
+    if(t < (new Date()).getTime()) {
+        clearInterval(waitForStartInterval);
+        a.play();
+        countdownDiv.innerHTML = "<h1>Playing</h1>";
+    }
 };
 
 var cancelShow = function () {
+    console.log("Cancelling Show...");
     db.ref().child("startTime").set(false);
+    if(waitForStartInterval) clearInterval(waitForStartInterval);
+    waitForStartInterval = null;
+    countdownDiv.innerHTML = "";
+    a.pause();
+    a.currentTime = 0;
 };

@@ -7,15 +7,23 @@
     <script src="console.js"></script>
 </head>
 <body style="background-color: #808080;">
+
+<audio src="FG.mp3" preload="auto" id="audio"></audio>
+
 <div id="login" style="display: flex; justify-content: center; align-items: center; visibility: visible;">
     Password:&nbsp;&nbsp;
     <input id="pw" type="password" onkeydown="if(event.keyCode == 13) {login()}">
     &nbsp;&nbsp;
     <button id="loginButton" onclick="login()">Log In</button>
 </div>
+
 <div id="console" style="display: flex; justify-content: center; align-items: center; visibility: hidden;">
     <button id="startshow" onclick="startShow()">Start Show</button>
     <button id="cancelshow" onclick="cancelShow()">Cancel Show</button>
 </div>
+
+<div id="countdown" style="display: flex; justify-content: center; align-items: center;">
+</div>
+
 </body>
 </html>

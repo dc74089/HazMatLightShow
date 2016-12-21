@@ -1,6 +1,6 @@
 var c = document.getElementById("canv");
 var x = c.getContext("2d");
-var worker = new Worker("worker.js");
+var worker;
 var isGradeInit = false;
 var grade;
 var initInterval;
@@ -20,7 +20,7 @@ var initCanvas = function () {
 var onClickGrade = function (e) {
     var xProp = e.clientX / c.width;
     if(xProp < 0.1 || xProp > 0.9) return;
-    console.log("Xprop is " + xProp);
+    //console.log("Xprop is " + xProp);
     clearInterval(initInterval);
     if(xProp > 0.1 && xProp < 0.3) {grade = 9; x.fillStyle = "#ff0000";}
     if(xProp > 0.3 && xProp < 0.5) {grade = 10; x.fillStyle = "#00ffff";}
@@ -30,11 +30,9 @@ var onClickGrade = function (e) {
     x.fillStyle = "#000000";
     x.fillText(grade, c.width/2, c.height/2);
     isGradeInit = true;
-    console.log("Grade is " + grade);
     c.removeEventListener("mousedown", onClickGrade);
 
-    w = new Worker("worker.js");
-    w.postMessage(grade);
+    initWorker(grade);
 };
 
 var resizeCanvas = function () {
@@ -48,12 +46,17 @@ window.addEventListener("load", function () {
 window.addEventListener("resize", resizeCanvas);
 gradeListener = c.addEventListener("mousedown", onClickGrade);
 
-worker.onmessage = function (event) {
-    data = event.data;
-    x.fillStyle = data;
-    x.fillRect(0, 0, c.width, c.height);
-    console.log("Message from worker! " + data)
-};
+function initWorker(g) {
+    worker = new Worker("worker.js");
+    worker.postMessage(g);
+
+    worker.onmessage = function (event) {
+        data = event.data;
+        x.fillStyle = data;
+        x.fillRect(0, 0, c.width, c.height);
+        console.log("Message from worker! " + data)
+    };
+}
 
 var wheelMe = function () {
     var time = (new Date).getTime();
@@ -62,7 +65,6 @@ var wheelMe = function () {
     x.fillStyle = wheel(time % 255);
     x.fillRect(0, 0, c.width, c.height)
 };
-
 function wheel(pos) {
     pos = 255 - pos;
     if(pos < 85) {
@@ -75,7 +77,6 @@ function wheel(pos) {
     pos -= 170;
     return rgbToHex(pos * 3, 255 - pos * 3, 0);
 }
-
 function componentToHex(c) {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
