@@ -22,7 +22,7 @@ self.addEventListener("message", function (e) {
         db.ref().child("startTime").on("value", function (snap) {
             updateStartTime(snap.val());
         });
-        //console.log("Init!");
+        db.ref().child("devices").child("queue").push().set(grade);
         init = true;
     }
 });

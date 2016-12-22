@@ -26,6 +26,7 @@ var login = function () {
         function (user) {
             document.getElementById("login").style.visibility = "collapse";
             document.getElementById("console").style.visibility = "visible";
+            document.getElementById("console2").style.visibility = "visible";
             console.log("Logged in");
             loggedIn = true
         }, function (error) {
@@ -37,12 +38,25 @@ var login = function () {
 
 var startShow = function () {
     console.log("Starting Show...");
+    db.ref().child("start").set(true);
+    /*
     t = (new Date()).getTime();
     t += 3000;
 
     db.ref().child("startTime").set(t);
 
     waitForStartInterval = setInterval(update, 10);
+     */
+};
+
+var cancelShow = function () {
+    console.log("Cancelling Show...");
+    db.ref().child("startTime").set(false);
+    if (waitForStartInterval) clearInterval(waitForStartInterval);
+    waitForStartInterval = null;
+    countdownDiv.innerHTML = "";
+    a.pause();
+    a.currentTime = 0;
 };
 
 var update = function () {
@@ -54,12 +68,12 @@ var update = function () {
     }
 };
 
-var cancelShow = function () {
-    console.log("Cancelling Show...");
-    db.ref().child("startTime").set(false);
-    if(waitForStartInterval) clearInterval(waitForStartInterval);
-    waitForStartInterval = null;
-    countdownDiv.innerHTML = "";
-    a.pause();
-    a.currentTime = 0;
+var startAccept = function () {
+    db.ref().child("accepting").set(true);
+};
+var stopAccept = function () {
+    db.ref().child("accepting").set(false);
+};
+var cleanDB = function () {
+    db.ref().child("cleanup").set(true);
 };
