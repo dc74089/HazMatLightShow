@@ -45,7 +45,7 @@ function waitForStart() {
     if (startTime <= (new Date).getTime()) {
         clearInterval(waitForStartInterval);
         waitForStartInterval = null;
-        show();
+        preshow();
     }
 }
 
@@ -76,19 +76,27 @@ function wheel(pos) {
     pos -= 170;
     return rgbToHex(pos * 3, 255 - pos * 3, 0);
 }
+
 function z() { //get show time
     return (new Date()).getTime() - startTime;
 }
 function w(millis) {
+    while (z() < millis);
+}
+function wd(millis, func) {
     while (z() < millis) {
-
+        func();
     }
 }
 function s(r, g, b) {
     sendRGB(r, g, b);
 }
+function sg(mGrade, r, g, b) {
+    if(mGrade == grade)
+        sendRGB(r, g, b);
+}
 
-function show() {
+function preshow() {
     console.log("Show Start");
     s(50, 50, 50);
     w(4000);
