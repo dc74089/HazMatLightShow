@@ -20,18 +20,20 @@ var initCanvas = function () {
 var onClickGrade = function (e) {
     var xProp = e.clientX / c.width;
     if(xProp < 0.1 || xProp > 0.9) return;
-    //console.log("Xprop is " + xProp);
+    if (xProp > 0.1 && xProp < 0.3) {
+        grade = 9;
+    }
+    if (xProp > 0.3 && xProp < 0.5) {
+        grade = 10;
+    }
+    if (xProp > 0.5 && xProp < 0.7) {
+        grade = 11;
+    }
+    if (xProp > 0.7 && xProp < 0.9) {
+        grade = 12;
+    }
     clearInterval(initInterval);
-    if(xProp > 0.1 && xProp < 0.3) {grade = 9; x.fillStyle = "#ff0000";}
-    if(xProp > 0.3 && xProp < 0.5) {grade = 10; x.fillStyle = "#00ffff";}
-    if(xProp > 0.5 && xProp < 0.7) {grade = 11; x.fillStyle = "#23f300";}
-    if(xProp > 0.7 && xProp < 0.9) {grade = 12; x.fillStyle = "#808080";}
-    x.fillRect(0, 0, c.width, c.height);
-    x.fillStyle = "#000000";
-    x.fillText(grade, c.width/2, c.height/2);
-    isGradeInit = true;
     c.removeEventListener("mousedown", onClickGrade);
-
     initWorker(grade);
 };
 
@@ -49,13 +51,41 @@ gradeListener = c.addEventListener("mousedown", onClickGrade);
 function initWorker(g) {
     worker = new Worker("worker.js");
     worker.postMessage(g);
+    isGradeInit = true;
+    worker.onmessage = doOnMessage;
+}
 
-    worker.onmessage = function (event) {
-        data = event.data;
+function doOnMessage(event) {
+    var data = event.data;
+    console.log("Message from worker! " + data + ", " + typeof data);
+
+    if (typeof data == "string") {
         x.fillStyle = data;
         x.fillRect(0, 0, c.width, c.height);
-        console.log("Message from worker! " + data)
-    };
+    } else {
+        if (data === true) { //Show is accepting
+            if (grade == 9) {
+                x.fillStyle = "#ff0000";
+            }
+            if (grade == 10) {
+                x.fillStyle = "#00ffff";
+            }
+            if (grade == 11) {
+                x.fillStyle = "#23f300";
+            }
+            if (grade == 12) {
+                x.fillStyle = "#808080";
+            }
+            x.fillRect(0, 0, c.width, c.height);
+            x.fillStyle = "#000000";
+            x.fillText(grade, c.width / 2, c.height / 2);
+        } else if (data === false) { //Show is not accepting
+            x.fillStyle = '#000000';
+            x.fillRect(0, 0, c.width, c.height);
+            x.fillStyle = '#808080';
+            x.fillText("Show not currently accepting", c.width / 2, c.height / 2);
+        }
+    }
 }
 
 var wheelMe = function () {
