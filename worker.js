@@ -31,9 +31,12 @@ self.addEventListener("message", function (e) {
         });
 
         db.ref().child("devices").child("all").child(myKey).on("value", function (snap) {
-            console.log("New color value in Worker: " + snap.val());
-            if (typeof snap.val() == "string")
+            if (typeof snap.val() == "string") {
                 sendMessage(snap.val());
+            }
+            else if (snap.val() == null) {
+                sendMessage(false)
+            }
         });
 
         init = true;

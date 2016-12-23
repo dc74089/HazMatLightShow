@@ -38,25 +38,15 @@ var login = function () {
 
 var startShow = function () {
     console.log("Starting Show...");
+    stopAccept();
     db.ref().child("start").set(true);
-    /*
-    t = (new Date()).getTime();
-    t += 3000;
-
-    db.ref().child("startTime").set(t);
-
-    waitForStartInterval = setInterval(update, 10);
-     */
 };
 
 var cancelShow = function () {
     console.log("Cancelling Show...");
-    db.ref().child("startTime").set(false);
-    if (waitForStartInterval) clearInterval(waitForStartInterval);
-    waitForStartInterval = null;
-    countdownDiv.innerHTML = "";
-    a.pause();
-    a.currentTime = 0;
+    db.ref().child("start").set(false);
+    cleanDB();
+    startAccept();
 };
 
 var update = function () {

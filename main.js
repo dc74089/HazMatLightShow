@@ -83,7 +83,7 @@ function doOnMessage(event) {
             x.fillStyle = '#000000';
             x.fillRect(0, 0, c.width, c.height);
             x.fillStyle = '#808080';
-            x.fillText("Show not currently accepting", c.width / 2, c.height / 2);
+            x.fillText("Show not active", c.width / 2, c.height / 2);
         }
     }
 }
