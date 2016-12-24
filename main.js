@@ -7,6 +7,7 @@ var init = false;
 var myKey;
 var myRef;
 var curr = null;
+var socket;
 
 var config = {
     apiKey: "AIzaSyC5pUq_4btmqOrQmFGeqQNzIjTCJt7B3NY",
@@ -64,6 +65,13 @@ function initWorker() {
 
         firebase.initializeApp(config);
         var db = firebase.database();
+        socket = new WebSocket("ws://localhost:7890");
+        socket.onopen = function (event) {
+            console.log("Socket open!");
+        };
+        socket.onmessage = function (event) {
+            console.log(event.data)
+        };
 
         myRef = db.ref().child("devices").child("queue").push();
         myKey = myRef.key;
