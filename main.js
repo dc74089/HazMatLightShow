@@ -1,9 +1,20 @@
 var c = document.getElementById("canv");
 var x = c.getContext("2d");
-var worker;
 var isGradeInit = false;
 var grade;
 var initInterval;
+var init = false;
+var myKey;
+var myRef;
+var curr = null;
+
+var config = {
+    apiKey: "AIzaSyC5pUq_4btmqOrQmFGeqQNzIjTCJt7B3NY",
+    authDomain: "hazmatlightshow.firebaseapp.com",
+    databaseURL: "https://hazmatlightshow.firebaseio.com",
+    storageBucket: "hazmatlightshow.appspot.com",
+    messagingSenderId: "821370827473"
+};
 
 var initCanvas = function () {
     resizeCanvas();
@@ -16,7 +27,6 @@ var initCanvas = function () {
     x.fillText("11", c.width * 0.6, c.height * 0.5);
     x.fillText("12", c.width * 0.8, c.height * 0.5);
 };
-
 var onClickGrade = function (e) {
     var xProp = e.clientX / c.width;
     if(xProp < 0.1 || xProp > 0.9) return;
@@ -34,9 +44,8 @@ var onClickGrade = function (e) {
     }
     clearInterval(initInterval);
     c.removeEventListener("mousedown", onClickGrade);
-    initWorker(grade);
+    initWorker();
 };
-
 var resizeCanvas = function () {
     c.width = window.innerWidth;
     c.height = window.innerHeight;
@@ -47,16 +56,42 @@ window.addEventListener("load", function () {
 });
 window.addEventListener("resize", resizeCanvas);
 gradeListener = c.addEventListener("mousedown", onClickGrade);
+setInterval(sendRGB, 1000 / 50);
 
-function initWorker(g) {
-    worker = new Worker("worker.js");
-    worker.postMessage(g);
-    isGradeInit = true;
-    worker.onmessage = doOnMessage;
+function initWorker() {
+    if (!init) {
+        console.log("Initialized internal Worker with grade " + grade);
+
+        firebase.initializeApp(config);
+        var db = firebase.database();
+
+        myRef = db.ref().child("devices").child("queue").push();
+        myKey = myRef.key;
+        myRef.set(grade).then(function () {
+            console.log("Initialized Firebase with grade " + grade);
+            doOnMessage(true)
+        }, function (err) {
+            console.warn(err.message);
+            doOnMessage(false)
+        });
+
+        db.ref().child("devices").child("all").child(myKey).on("value", function (snap) {
+            if (typeof snap.val() == "string") {
+                setRGB(snap.val())
+            }
+            else if (snap.val() == null) {
+                doOnMessage(false)
+            }
+        });
+
+        init = true;
+    }
 }
-
-function doOnMessage(event) {
-    var data = event.data;
+function sendRGB() {
+    if (curr != null)
+        doOnMessage(curr);
+}
+function doOnMessage(data) {
     console.log("Message from worker! " + data + ", " + typeof data);
 
     if (typeof data == "string") {
@@ -86,6 +121,9 @@ function doOnMessage(event) {
             x.fillText("Show not active", c.width / 2, c.height / 2);
         }
     }
+}
+function setRGB(snap) {
+    curr = snap;
 }
 
 var wheelMe = function () {
