@@ -11,6 +11,7 @@ var db = firebase.database();
 var auth = firebase.auth();
 var loggedIn = false;
 var a, t, countdownDiv;
+var startTime;
 var waitForStartInterval = null;
 console.log("Firebase Initialized");
 
@@ -28,6 +29,9 @@ var login = function () {
             document.getElementById("console").style.visibility = "visible";
             document.getElementById("console2").style.visibility = "visible";
             console.log("Logged in");
+            db.ref().child("startTime").on("value", function (snap) {
+                setStartTime(snap.val());
+            });
             loggedIn = true
         }, function (error) {
             console.warn(error.message);
@@ -45,8 +49,25 @@ var startShow = function () {
 var cancelShow = function () {
     console.log("Cancelling Show...");
     db.ref().child("start").set(false);
+    a.pause();
+    a.currentTime = 0;
     cleanDB();
     startAccept();
+};
+
+var setStartTime = function (val) {
+    if (!(typeof val == 'number')) return;
+    startTime = val;
+    waitForStartInterval = setInterval(waitForStart, 1);
+    a.pause();
+    a.currentTime = 0;
+};
+
+var waitForStart = function () {
+    if ((new Date()).getTime() >= startTime) {
+        a.play();
+        clearInterval(waitForStartInterval);
+    }
 };
 
 var update = function () {
