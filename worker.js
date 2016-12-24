@@ -2,6 +2,7 @@ var init = false;
 var grade;
 var myKey;
 var myRef;
+var curr = null;
 
 importScripts("https://www.gstatic.com/firebasejs/3.6.2/firebase.js");
 
@@ -32,7 +33,7 @@ self.addEventListener("message", function (e) {
 
         db.ref().child("devices").child("all").child(myKey).on("value", function (snap) {
             if (typeof snap.val() == "string") {
-                sendMessage(snap.val());
+                setRGB(snap.val())
             }
             else if (snap.val() == null) {
                 sendMessage(false)
@@ -42,9 +43,14 @@ self.addEventListener("message", function (e) {
         init = true;
     }
 });
+setInterval(sendRGB, 1000 / 24);
 
-function sendRGB(r, g, b) {
-    sendMessage(rgbToHex(r, g, b));
+function sendRGB() {
+    if (curr != null)
+        sendMessage(curr);
+}
+function setRBG(snap) {
+    curr = snap;
 }
 function sendMessage(hex) {
     self.postMessage(hex);
