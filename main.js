@@ -1,21 +1,10 @@
 var c = document.getElementById("canv");
 var x = c.getContext("2d");
-var isGradeInit = false;
 var grade;
 var initInterval;
 var init = false;
-var myKey;
-var myRef;
 var curr = null;
 var socket;
-
-var config = {
-    apiKey: "AIzaSyC5pUq_4btmqOrQmFGeqQNzIjTCJt7B3NY",
-    authDomain: "hazmatlightshow.firebaseapp.com",
-    databaseURL: "https://hazmatlightshow.firebaseio.com",
-    storageBucket: "hazmatlightshow.appspot.com",
-    messagingSenderId: "821370827473"
-};
 
 var initCanvas = function () {
     resizeCanvas();
@@ -30,7 +19,7 @@ var initCanvas = function () {
 };
 var onClickGrade = function (e) {
     var xProp = e.clientX / c.width;
-    if(xProp < 0.1 || xProp > 0.9) return;
+    if (xProp < 0.1 || xProp > 0.9) return;
     if (xProp > 0.1 && xProp < 0.3) {
         grade = 9;
     }
@@ -63,34 +52,25 @@ function initWorker() {
     if (!init) {
         console.log("Initialized internal Worker with grade " + grade);
 
-        firebase.initializeApp(config);
-        var db = firebase.database();
-        socket = new WebSocket("ws://localhost:7890");
+        socket = new WebSocket("ws://localhost:901");
         socket.onopen = function (event) {
             console.log("Socket open!");
+            socket.send(grade);
         };
         socket.onmessage = function (event) {
-            console.log(event.data)
+            console.log("New message: " + event.data);
+            if (event.data == grade.toString()) {
+                doOnMessage(true);
+            } else {
+                doOnMessage(event.data)
+            }
         };
-
-        myRef = db.ref().child("devices").child("queue").push();
-        myKey = myRef.key;
-        myRef.set(grade).then(function () {
-            console.log("Initialized Firebase with grade " + grade);
-            doOnMessage(true)
-        }, function (err) {
-            console.warn(err.message);
+        socket.onerror = function (event) {
             doOnMessage(false)
-        });
-
-        db.ref().child("devices").child("all").child(myKey).on("value", function (snap) {
-            if (typeof snap.val() == "string") {
-                setRGB(snap.val())
-            }
-            else if (snap.val() == null) {
-                doOnMessage(false)
-            }
-        });
+        };
+        socket.onclose = function (event) {
+            doOnMessage(false);
+        };
 
         init = true;
     }
@@ -105,29 +85,27 @@ function doOnMessage(data) {
     if (typeof data == "string") {
         x.fillStyle = data;
         x.fillRect(0, 0, c.width, c.height);
-    } else {
-        if (data === true) { //Show is accepting
-            if (grade == 9) {
-                x.fillStyle = "#ff0000";
-            }
-            if (grade == 10) {
-                x.fillStyle = "#00ffff";
-            }
-            if (grade == 11) {
-                x.fillStyle = "#23f300";
-            }
-            if (grade == 12) {
-                x.fillStyle = "#808080";
-            }
-            x.fillRect(0, 0, c.width, c.height);
-            x.fillStyle = "#000000";
-            x.fillText(grade, c.width / 2, c.height / 2);
-        } else if (data === false) { //Show is not accepting
-            x.fillStyle = '#000000';
-            x.fillRect(0, 0, c.width, c.height);
-            x.fillStyle = '#808080';
-            x.fillText("Show not active", c.width / 2, c.height / 2);
+    } else if (data === true) { //Show is accepting
+        if (grade == 9) {
+            x.fillStyle = "#ff0000";
         }
+        if (grade == 10) {
+            x.fillStyle = "#00ffff";
+        }
+        if (grade == 11) {
+            x.fillStyle = "#23f300";
+        }
+        if (grade == 12) {
+            x.fillStyle = "#808080";
+        }
+        x.fillRect(0, 0, c.width, c.height);
+        x.fillStyle = "#000000";
+        x.fillText(grade, c.width / 2, c.height / 2);
+    } else if (data === false) { //Show is not accepting
+        x.fillStyle = '#000000';
+        x.fillRect(0, 0, c.width, c.height);
+        x.fillStyle = '#808080';
+        x.fillText("Show not active", c.width / 2, c.height / 2);
     }
 }
 function setRGB(snap) {
@@ -143,10 +121,10 @@ var wheelMe = function () {
 };
 function wheel(pos) {
     pos = 255 - pos;
-    if(pos < 85) {
+    if (pos < 85) {
         return rgbToHex(255 - pos * 3, 0, pos * 3);
     }
-    if(pos < 170) {
+    if (pos < 170) {
         pos -= 85;
         return rgbToHex(0, pos * 3, 255 - pos * 3);
     }

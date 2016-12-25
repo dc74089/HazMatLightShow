@@ -1,54 +1,52 @@
-// Initialize Firebase
-var config = {
-    apiKey: "AIzaSyC5pUq_4btmqOrQmFGeqQNzIjTCJt7B3NY",
-    authDomain: "hazmatlightshow.firebaseapp.com",
-    databaseURL: "https://hazmatlightshow.firebaseio.com",
-    storageBucket: "hazmatlightshow.appspot.com",
-    messagingSenderId: "821370827473"
-};
-firebase.initializeApp(config);
-var db = firebase.database();
-var auth = firebase.auth();
-var loggedIn = false;
 var a, t, countdownDiv;
+var socket;
 var startTime;
 var waitForStartInterval = null;
-console.log("Firebase Initialized");
+console.log("Initialized");
 
 addEventListener("load", function () {
     a = document.getElementById("audio");
     countdownDiv = document.getElementById("countdown");
+
+    socket = new WebSocket("ws://localhost:901");
+    socket.onopen = function () {
+        //TODO: Something here?
+    };
+    socket.onmessage = function (event) {
+        if (event.data == "Authenticated.") {
+            console.log("auth");
+            document.getElementById("login").style.visibility = "hidden";
+            document.getElementById("console").style.visibility = "visible";
+            document.getElementById("console2").style.visibility = "visible";
+        } else if (event.data.substr(0, 2) == "##") {
+            console.log("Received start time");
+            setStartTime(parseInt(event.data.substr(2, event.data.length)));
+        }
+        setDisplay(event.data);
+    };
+    socket.onclose = function (event) {
+        setDisplay("Socket closed");
+    };
+    socket.onerror = function (event) {
+        setDisplay("Socket error");
+    };
 });
 
 var login = function () {
-    var succeededLogin = true;
-    var pass = document.getElementById("pw").value.toString();
-    auth.signInWithEmailAndPassword("ftc9277@gmail.com", pass).then(
-        function (user) {
-            document.getElementById("login").style.visibility = "collapse";
-            document.getElementById("console").style.visibility = "visible";
-            document.getElementById("console2").style.visibility = "visible";
-            console.log("Logged in");
-            db.ref().child("startTime").on("value", function (snap) {
-                setStartTime(snap.val());
-            });
-            loggedIn = true
-        }, function (error) {
-            console.warn(error.message);
-            succeededLogin = false
-        }
-    );
+    pass = document.getElementById("pw");
+    console.log(pw.value.hashCode());
+    socket.send(pw.value.hashCode());
 };
 
 var startShow = function () {
     console.log("Starting Show...");
     stopAccept();
-    db.ref().child("start").set(true);
+    socket.send("start");
 };
 
 var cancelShow = function () {
     console.log("Cancelling Show...");
-    db.ref().child("start").set(false);
+    socket.send("stop");
     a.pause();
     a.currentTime = 0;
     cleanDB();
@@ -70,21 +68,27 @@ var waitForStart = function () {
     }
 };
 
-var update = function () {
-    countdownDiv.innerHTML = "<h1>" + (t - (new Date()).getTime()) + "</h1>";
-    if(t < (new Date()).getTime()) {
-        clearInterval(waitForStartInterval);
-        a.play();
-        countdownDiv.innerHTML = "<h1>Playing</h1>";
-    }
+var setDisplay = function (text) {
+    countdownDiv.innerHTML = text
 };
 
 var startAccept = function () {
-    db.ref().child("accepting").set(true);
+    socket.send("startAccepting");
 };
 var stopAccept = function () {
-    db.ref().child("accepting").set(false);
+    socket.send("stopAccepting");
 };
 var cleanDB = function () {
-    db.ref().child("cleanup").set(true);
+    socket.send("cleanup");
+};
+
+String.prototype.hashCode = function () {
+    var hash = 0, i, chr, len;
+    if (this.length === 0) return hash;
+    for (i = 0, len = this.length; i < len; i++) {
+        chr = this.charCodeAt(i);
+        hash = ((hash << 5) - hash) + chr;
+        hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
 };
