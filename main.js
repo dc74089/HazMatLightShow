@@ -43,6 +43,14 @@ var resizeCanvas = function () {
 
 window.addEventListener("load", function () {
     initInterval = setInterval(initCanvas, 10);
+
+    if (getParameterByName("grade")) {
+        clearInterval(initInterval);
+        c.removeEventListener("mousedown", onClickGrade);
+        resizeCanvas();
+        grade = getParameterByName("grade");
+        initWorker();
+    }
 });
 window.addEventListener("resize", resizeCanvas);
 gradeListener = c.addEventListener("mousedown", onClickGrade);
@@ -137,4 +145,16 @@ function componentToHex(c) {
 }
 function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+}
+
+function getParameterByName(name, url) {
+    if (!url) {
+        url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
 }

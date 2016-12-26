@@ -10,7 +10,7 @@ addEventListener("load", function () {
 
     socket = new WebSocket("ws://localhost:901");
     socket.onopen = function () {
-        //TODO: Something here?
+        console.log("Socket open!")
     };
     socket.onmessage = function (event) {
         if (event.data == "Authenticated.") {
