@@ -1,4 +1,4 @@
-var a, t, countdownDiv;
+var a, countdownDiv;
 var socket;
 var startTime;
 var waitForStartInterval = null;
@@ -10,7 +10,8 @@ addEventListener("load", function () {
 
     socket = new WebSocket("ws://localhost:901");
     socket.onopen = function () {
-        console.log("Socket open!")
+        console.log("Socket open!");
+        setDisplay("Socket Open");
     };
     socket.onmessage = function (event) {
         if (event.data == "Authenticated.") {
