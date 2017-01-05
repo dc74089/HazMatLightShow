@@ -12,6 +12,7 @@ addEventListener("load", function () {
     socket.onopen = function () {
         console.log("Socket open!");
         setDisplay("Socket Open");
+		socket.send("robotics".hashCode())
     };
     socket.onmessage = function (event) {
         if (event.data == "Authenticated.") {
