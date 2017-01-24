@@ -60,7 +60,7 @@ function initWorker() {
     if (!init) {
         console.log("Initialized internal Worker with grade " + grade);
 
-        socket = new WebSocket("ws://localhost:901");
+        socket = new WebSocket("ws://35.185.1.71:901");
         socket.onopen = function (event) {
             console.log("Socket open!");
             socket.send(grade);
