@@ -60,7 +60,7 @@ function initWorker() {
     if (!init) {
         console.log("Initialized internal Worker with grade " + grade);
 
-        socket = new WebSocket("wss://35.185.1.71:901");
+        socket = new WebSocket("ws://hls.hazmatrobotics.net:8000/");
         socket.onopen = function (event) {
             console.log("Socket open!");
             socket.send(grade);
@@ -77,6 +77,7 @@ function initWorker() {
             doOnMessage(false)
         };
         socket.onclose = function (event) {
+			console.log("Closed with code " + event.code);
             doOnMessage(false);
         };
 

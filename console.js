@@ -8,11 +8,10 @@ addEventListener("load", function () {
     a = document.getElementById("audio");
     countdownDiv = document.getElementById("countdown");
 
-    socket = new WebSocket("ws://localhost:901");
+    socket = new WebSocket("ws://hls.hazmatrobotics.net:8000");
     socket.onopen = function () {
         console.log("Socket open!");
         setDisplay("Socket Open");
-		socket.send("robotics".hashCode())
     };
     socket.onmessage = function (event) {
         if (event.data == "Authenticated.") {
