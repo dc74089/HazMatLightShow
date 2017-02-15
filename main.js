@@ -60,13 +60,13 @@ function initWorker() {
     if (!init) {
         console.log("Initialized internal Worker with grade " + grade);
 
-        socket = new WebSocket("ws://hls.hazmatrobotics.net:8000/");
+        socket = new WebSocket("ws://hazlightshow.duckdns.org:8000/");
         socket.onopen = function (event) {
             console.log("Socket open!");
             socket.send(grade);
         };
         socket.onmessage = function (event) {
-            console.log("New message: " + event.data);
+            //console.log("New message: " + event.data);
             if (event.data == grade.toString()) {
                 doOnMessage(true);
             } else {

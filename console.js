@@ -8,7 +8,7 @@ addEventListener("load", function () {
     a = document.getElementById("audio");
     countdownDiv = document.getElementById("countdown");
 
-    socket = new WebSocket("ws://hls.hazmatrobotics.net:8000");
+    socket = new WebSocket("ws://hazlightshow.duckdns.org:8000");
     socket.onopen = function () {
         console.log("Socket open!");
         setDisplay("Socket Open");
@@ -22,7 +22,9 @@ addEventListener("load", function () {
         } else if (event.data.substr(0, 2) == "##") {
             console.log("Received start time");
             setStartTime(parseInt(event.data.substr(2, event.data.length)));
-        }
+        } else if (event.data == "#GO#") {
+			a.play();
+		}
         setDisplay(event.data);
     };
     socket.onclose = function (event) {
