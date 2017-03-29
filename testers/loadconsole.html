@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Show Admin</title>
+    <script src="loadconsole.js"></script>
+</head>
+<body style="background-color: #808080;">
+
+<div id="login" style="display: flex; justify-content: center; align-items: center; visibility: visible;">
+    Password:&nbsp;&nbsp;
+    <input id="pw" type="password" onkeydown="if(event.keyCode == 13) {login()}">
+    &nbsp;&nbsp;
+    <button id="loginButton" onclick="login()">Log In</button>
+</div>
+
+<div id="console" style="display: flex; justify-content: center; align-items: center; visibility: hidden;">
+    <input type="text" id="message" />
+	<button id="sendmsg" onclick="sendmsg()">Send</button>
+</div>
+
+<div id="countdown" style="display: flex; justify-content: center; align-items: center;">
+</div>
+
+</body>
+</html>
