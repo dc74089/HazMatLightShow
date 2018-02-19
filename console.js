@@ -8,7 +8,7 @@ addEventListener("load", function () {
     a = document.getElementById("audio");
     countdownDiv = document.getElementById("countdown");
 
-    socket = new WebSocket("ws://hazlightshow.duckdns.org:8000");
+    socket = new WebSocket("ws://lights.hazmatrobotics.net:8000");
     socket.onopen = function () {
         console.log("Socket open!");
         setDisplay("Socket Open");
