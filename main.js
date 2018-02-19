@@ -60,7 +60,7 @@ function initWorker() {
     if (!init) {
         console.log("Initialized internal Worker with grade " + grade);
 
-        socket = new WebSocket("ws://hazlightshow.duckdns.org:8000/");
+        socket = new WebSocket("ws://lights.hazmatrobotics.net:8000/");
         socket.onopen = function (event) {
             console.log("Socket open!");
             socket.send(grade);
